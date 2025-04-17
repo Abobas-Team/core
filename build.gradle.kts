@@ -1,3 +1,5 @@
+import java.util.*
+
 plugins {
     java
     id("org.springframework.boot") version "3.4.4"
@@ -37,13 +39,25 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
 spotless {
     java {
         palantirJavaFormat()
         target("src/**/*.java")
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+tasks.named("classes") {
+    val envFile = File(rootDir, ".env")
+    val env = Properties().apply {
+        if (envFile.exists()) {
+            envFile.inputStream().use { load(it) }
+        }
+    }
+    if (env.getProperty("SPOTLESS_FORMATTING_ENABLED")?.lowercase() == "true") {
+        dependsOn("spotlessApply")
     }
 }
