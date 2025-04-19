@@ -32,6 +32,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
@@ -47,6 +48,7 @@ spotless {
     java {
         palantirJavaFormat()
         target("src/**/*.java")
+        targetExclude("src/**/*DTO.java")
     }
 }
 
