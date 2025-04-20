@@ -2,6 +2,7 @@ package org.core.dnd_ai.global;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import org.core.dnd_ai.global.exception.EmailAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +28,10 @@ public class GlobalExceptionHandler {
                             return problemDetail;
                         })
                         .toList());
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 }
