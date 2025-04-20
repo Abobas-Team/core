@@ -2,6 +2,7 @@ package org.core.dnd_ai.global;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import org.core.dnd_ai.global.exception.EmailAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -36,6 +37,20 @@ public class GlobalExceptionHandler {
                             return detail;
                         })
                         .toList());
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<String> handleNullPointerException(NullPointerException e) {
+        String message = Optional.ofNullable(e)
+                .map(Throwable::getMessage)
+                // Expected NullPointerException, thrown from @NonNull lombok annotation
+                .filter(msg -> msg.endsWith("is marked non-null but is null"))
+                // Unexpected NullPointerException
+                .orElse(null);
+
+        return message != null
+                ? ResponseEntity.badRequest().body(message)
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
