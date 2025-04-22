@@ -39,6 +39,11 @@ public class JwtService {
         return parser.parseSignedClaims(token).getPayload();
     }
 
+    private boolean isTokenExpired(@NonNull String token) {
+        var expirationDate = extractAllClaims(token).getExpiration();
+        return expirationDate.before(new Date());
+    }
+
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
@@ -51,5 +56,13 @@ public class JwtService {
 
     public String extractUsername(@NonNull String token) {
         return extractAllClaims(token).getSubject();
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        var username = userDetails.getUsername();
+        return !isTokenExpired(token) && username.equals(extractUsername(token));
     }
 }
