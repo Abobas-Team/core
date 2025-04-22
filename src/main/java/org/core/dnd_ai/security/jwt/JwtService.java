@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,10 +32,10 @@ public class JwtService {
         return claims;
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(@NonNull String token) {
         var parser = Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
-            .build();
+                .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
+                .build();
         return parser.parseSignedClaims(token).getPayload();
     }
 
@@ -46,5 +47,9 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + lifetime.toMillis()))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
                 .compact();
+    }
+
+    public String extractUsername(@NonNull String token) {
+        return extractAllClaims(token).getSubject();
     }
 }
