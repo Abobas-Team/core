@@ -20,8 +20,11 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.lifetime}")
-    private Duration lifetime;
+    @Value("${jwt.access_token_lifetime}")
+    private Duration accessTokenLifetime;
+
+    @Value("${jwt.refresh_token_lifetime}")
+    private Duration refreshTokenLifetime;
 
     private Map<String, Object> formClaims(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
@@ -44,12 +47,21 @@ public class JwtService {
         return expirationDate.before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateRefreshToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenLifetime.toMillis()))
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
+                .compact();
+    }
+
+    public String generateAccessToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .claims(formClaims(userDetails))
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + lifetime.toMillis()))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenLifetime.toMillis()))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
                 .compact();
     }
@@ -58,11 +70,7 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        if (token == null || token.isEmpty()) {
-            return false;
-        }
-        var username = userDetails.getUsername();
-        return !isTokenExpired(token) && username.equals(extractUsername(token));
+    public boolean isTokenValid(String token) {
+        return token != null && !token.isEmpty() && !isTokenExpired(token);
     }
 }
