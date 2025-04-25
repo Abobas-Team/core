@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-abstract class UserMapper {
-    abstract User toEntity(PostUserDTO dto);
+public abstract class UserMapper {
+    public abstract User toEntity(PostUserDTO dto);
 
-    abstract GetUserDTO toDTO(User user);
+    public abstract GetUserDTO toDTO(User user);
 }
