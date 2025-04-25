@@ -69,4 +69,8 @@ public class JwtService {
     public String extractUsername(@NonNull String token) {
         return extractAllClaims(token).getSubject();
     }
+
+    public Date extractExpiration(@NonNull String token) {
+        return extractAllClaims(token).getExpiration();
+    }
 }
