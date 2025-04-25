@@ -1,9 +1,11 @@
 package org.core.dnd_ai.security.auth;
 
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.core.dnd_ai.security.jwt.JwtService;
+import org.core.dnd_ai.security.users.User;
 import org.core.dnd_ai.security.users.UserService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,13 @@ public class AuthService {
 
     private static final String REFRESH_TOKEN_PREFIX = "auth:refresh:";
 
+    public GetAuthDTO signUp(@NonNull User user) {
+        var saved = userService.save(user);
+        String refreshToken = jwtService.generateRefreshToken(saved);
+        saveToken(refreshToken);
+        return new GetAuthDTO(jwtService.generateAccessToken(saved), refreshToken);
+    }
+
     public GetAuthDTO signIn(@NonNull String username, @NonNull String password) {
         var auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         var user = (UserDetails) auth.getPrincipal();
@@ -33,7 +42,7 @@ public class AuthService {
 
         if (refreshToken == null) {
             refreshToken = jwtService.generateRefreshToken(user);
-            redisTemplate.opsForValue().set(redisKey, refreshToken);
+            saveToken(refreshToken);
         }
         return new GetAuthDTO(jwtService.generateAccessToken(user), refreshToken);
     }
@@ -48,5 +57,11 @@ public class AuthService {
             log.error(e.getMessage()); // TODO: log correctly
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    private void saveToken(String token) {
+        String redisKey = REFRESH_TOKEN_PREFIX + jwtService.extractUsername(token);
+        long timeToLive = jwtService.extractExpiration(token).getTime(); // in milliseconds
+        redisTemplate.opsForValue().set(redisKey, token, timeToLive, TimeUnit.MILLISECONDS);
     }
 }
