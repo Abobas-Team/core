@@ -1,6 +1,8 @@
 package org.core.dnd_ai.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.core.dnd_ai.security.jwt.JwtAuthFilter;
 import org.core.dnd_ai.security.users.UserService;
@@ -28,6 +30,7 @@ import org.springframework.web.cors.CorsConfiguration;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserService userService;
+    private final ObjectMapper objectMapper;
     private final JwtAuthFilter jwtAuthFilter;
     private final PasswordEncoder passwordEncoder;
 
@@ -48,7 +51,8 @@ public class SecurityConfig {
         return (request, response, authException) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write(authException.getMessage());
+            Map<String, String> error = Map.of("error", authException.getMessage());
+            objectMapper.writeValue(response.getWriter(), error);
         };
     }
 
@@ -56,7 +60,8 @@ public class SecurityConfig {
         return (request, response, accessDeniedException) -> {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");
-            response.getWriter().write(accessDeniedException.getMessage());
+            Map<String, String> error = Map.of("error", accessDeniedException.getMessage());
+            objectMapper.writeValue(response.getWriter(), error);
         };
     }
 
