@@ -27,9 +27,4 @@ public class AuthController {
     public ResponseEntity<GetAuthDTO> signIn(@RequestBody PostAuthDTO dto) {
         return ResponseEntity.ok(authService.signIn(dto.email(), dto.password()));
     }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<String> refreshToken(@RequestBody RefresTokenDTO dto) {
-        return ResponseEntity.ok().body(authService.refreshToken(dto.refreshToken()));
-    }
 }

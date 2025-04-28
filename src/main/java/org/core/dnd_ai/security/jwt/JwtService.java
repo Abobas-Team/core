@@ -23,9 +23,6 @@ public class JwtService {
     @Value("${jwt.access_token_lifetime}")
     private Duration accessTokenLifetime;
 
-    @Value("${jwt.refresh_token_lifetime}")
-    private Duration refreshTokenLifetime;
-
     private Map<String, Object> formClaims(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         List<String> roles = userDetails.getAuthorities().stream()
@@ -42,20 +39,6 @@ public class JwtService {
         return parser.parseSignedClaims(token).getPayload();
     }
 
-    private boolean isTokenExpired(@NonNull String token) {
-        var expirationDate = extractAllClaims(token).getExpiration();
-        return expirationDate.before(new Date());
-    }
-
-    public String generateRefreshToken(UserDetails userDetails) {
-        return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenLifetime.toMillis()))
-                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
-                .compact();
-    }
-
     public String generateAccessToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
@@ -68,9 +51,5 @@ public class JwtService {
 
     public String extractUsername(@NonNull String token) {
         return extractAllClaims(token).getSubject();
-    }
-
-    public Date extractExpiration(@NonNull String token) {
-        return extractAllClaims(token).getExpiration();
     }
 }
