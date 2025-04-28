@@ -4,19 +4,25 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class JwtService {
+    private final Environment environment;
+
     @Value("${jwt.secret}")
     private String secret;
 
@@ -51,5 +57,25 @@ public class JwtService {
 
     public String extractUsername(@NonNull String token) {
         return extractAllClaims(token).getSubject();
+    }
+
+    public List<Cookie> cookieForUser(@NonNull UserDetails userDetails) {
+        String jwt = generateAccessToken(userDetails);
+        Cookie head = getBearerPartCookie("BearerHead", jwt.substring(0, jwt.length() / 2));
+        Cookie tail = getBearerPartCookie("BearerTail", jwt.substring(jwt.length() / 2));
+        head.setHttpOnly(true);
+        return List.of(head, tail);
+    }
+
+    private Cookie getBearerPartCookie(String name, String value) {
+        var cookie = new Cookie(name, value);
+        cookie.setPath("/");
+        cookie.setMaxAge((int) accessTokenLifetime.toMillis() / 1000);
+
+        if (!environment.matchesProfiles("dev")) {
+            cookie.setSecure(true);
+            cookie.setAttribute("SameSite", "None");
+        }
+        return cookie;
     }
 }
