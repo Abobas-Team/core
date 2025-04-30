@@ -3,26 +3,30 @@ package org.core.dnd_ai.security.auth;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.core.dnd_ai.security.jwt.JwtService;
 import org.core.dnd_ai.security.users.User;
 import org.core.dnd_ai.security.users.UserService;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthService {
+    private final Environment environment;
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationManager authManager;
 
-    public GetAuthDTO signUp(@NonNull User user) {
+    public User signUp(@NonNull HttpServletResponse response, @NonNull User user) {
         var saved = userService.save(user);
-        return new GetAuthDTO(jwtService.generateAccessToken(saved));
+        if (!environment.matchesProfiles("dev")) {
+            var cookies = jwtService.cookieForUser(saved);
+            cookies.forEach(response::addCookie);
+        }
+        return saved;
     }
 
     public GetAuthDTO signIn(@NonNull String username, @NonNull String password) {
