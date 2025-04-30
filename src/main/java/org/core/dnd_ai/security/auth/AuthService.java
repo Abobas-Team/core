@@ -1,5 +1,6 @@
 package org.core.dnd_ai.security.auth;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,5 +29,12 @@ public class AuthService {
         var auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         var user = (UserDetails) auth.getPrincipal();
         return new GetAuthDTO(jwtService.generateAccessToken(user));
+    }
+
+    public void signIn(@NonNull HttpServletResponse response, @NonNull String username, @NonNull String password) {
+        var auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        var user = (UserDetails) auth.getPrincipal();
+        var cookies = jwtService.cookieForUser(user);
+        cookies.forEach(response::addCookie);
     }
 }
