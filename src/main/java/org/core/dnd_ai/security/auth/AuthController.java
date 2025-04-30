@@ -1,9 +1,11 @@
 package org.core.dnd_ai.security.auth;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.core.dnd_ai.global.validation.groups.Post;
 import org.core.dnd_ai.security.users.PostUserDTO;
 import org.core.dnd_ai.security.users.UserMapper;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final UserMapper userMapper;
     private final AuthService authService;
+    private final Environment environment;
 
     @PostMapping("/sign-up")
     public ResponseEntity<GetAuthDTO> signUp(@RequestBody @Validated(Post.class) PostUserDTO dto) {
@@ -24,7 +27,12 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<GetAuthDTO> signIn(@RequestBody PostAuthDTO dto) {
-        return ResponseEntity.ok(authService.signIn(dto.email(), dto.password()));
+    public ResponseEntity<?> signIn(HttpServletResponse response, @RequestBody PostAuthDTO dto) {
+        var responseEntityBuilder = ResponseEntity.ok();
+        if (environment.matchesProfiles("dev")) {
+            return responseEntityBuilder.body(authService.signIn(dto.email(), dto.password()));
+        }
+        authService.signIn(response, dto.email(), dto.password());
+        return responseEntityBuilder.build();
     }
 }
