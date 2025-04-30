@@ -3,6 +3,7 @@ package org.core.dnd_ai.security.auth;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.core.dnd_ai.global.validation.groups.Post;
+import org.core.dnd_ai.security.users.GetUserDTO;
 import org.core.dnd_ai.security.users.PostUserDTO;
 import org.core.dnd_ai.security.users.UserMapper;
 import org.springframework.core.env.Environment;
@@ -22,8 +23,10 @@ public class AuthController {
     private final Environment environment;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<GetAuthDTO> signUp(@RequestBody @Validated(Post.class) PostUserDTO dto) {
-        return ResponseEntity.ok(authService.signUp(userMapper.toEntity(dto)));
+    public ResponseEntity<GetUserDTO> signUp(
+            HttpServletResponse response, @RequestBody @Validated(Post.class) PostUserDTO dto) {
+        var user = userMapper.toEntity(dto);
+        return ResponseEntity.ok(userMapper.toDTO(authService.signUp(response, user)));
     }
 
     @PostMapping("/sign-in")
