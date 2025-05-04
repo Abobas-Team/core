@@ -9,12 +9,8 @@ import org.core.dnd_ai.global.validation.groups.Post;
 
 public record PostUserDTO(
     @NotBlank(groups = Post.class)
-    @Size(min = 1, max = 255, groups = {Default.class, Post.class})
-    String name,
-
-    @NotBlank(groups = Post.class)
-    @Size(min = 1, max = 255, groups = {Default.class, Post.class})
-    String surname,
+    @Size(min = 5, max = 255, groups = {Default.class, Post.class})
+    String username,
 
     @NotNull(groups = Post.class)
     @Email(groups = {Default.class, Post.class})

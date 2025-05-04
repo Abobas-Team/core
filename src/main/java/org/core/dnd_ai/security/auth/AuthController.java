@@ -33,9 +33,9 @@ public class AuthController {
     public ResponseEntity<?> signIn(HttpServletResponse response, @RequestBody PostAuthDTO dto) {
         var responseEntityBuilder = ResponseEntity.ok();
         if (environment.matchesProfiles("dev")) {
-            return responseEntityBuilder.body(authService.signIn(dto.email(), dto.password()));
+            return responseEntityBuilder.body(authService.signIn(dto.username(), dto.password()));
         }
-        authService.signIn(response, dto.email(), dto.password());
+        authService.signIn(response, dto.username(), dto.password());
         return responseEntityBuilder.build();
     }
 }

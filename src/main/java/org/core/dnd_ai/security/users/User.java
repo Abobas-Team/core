@@ -25,11 +25,8 @@ public class User implements UserDetails {
 
     @NonNull
     @NotNull
-    private String name;
-
-    @NonNull
-    @NotNull
-    private String surname;
+    @Column(unique = true)
+    private String username;
 
     @NonNull
     @NotNull
@@ -61,7 +58,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return email;
+    public @NonNull String getUsername() {
+        return username;
     }
 }
