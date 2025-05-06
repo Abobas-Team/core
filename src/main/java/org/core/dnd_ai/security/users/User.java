@@ -6,17 +6,27 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import lombok.*;
+import org.core.dnd_ai.security.oauth2.AuthProvider;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Entity(name = "users")
-@Getter
-@Setter
-@RequiredArgsConstructor
+@Entity(name = "base_user")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorFormula(
+        value =
+                """
+            CASE WHEN provider = 'LOCAL' THEN 'LOCAL'
+            WHEN provider = 'GOOGLE' THEN 'OAUTH'
+            ELSE 'UNKNOWN' END
+        """,
+        discriminatorType = DiscriminatorType.STRING)
+@Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User implements UserDetails {
     @Id
@@ -40,7 +50,10 @@ public class User implements UserDetails {
 
     @NonNull
     @NotNull
-    private String password;
+    @Setter(AccessLevel.NONE)
+    @Column(updatable = false)
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
 
     @Immutable
     @CreationTimestamp
@@ -52,9 +65,22 @@ public class User implements UserDetails {
     @Setter(AccessLevel.NONE)
     private LocalDateTime lastUpdateAt;
 
+    protected User(
+            @NonNull String username, @NonNull String email, @NonNull Role role, @NonNull AuthProvider provider) {
+        this.username = username;
+        this.email = email;
+        this.role = role;
+        this.provider = provider;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
     }
 
     @Override

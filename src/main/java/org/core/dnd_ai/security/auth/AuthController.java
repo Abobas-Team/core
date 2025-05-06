@@ -25,7 +25,7 @@ public class AuthController {
     @PostMapping("/sign-up")
     public ResponseEntity<GetUserDTO> signUp(
             HttpServletResponse response, @RequestBody @Validated(Post.class) PostUserDTO dto) {
-        var user = userMapper.toEntity(dto);
+        var user = userMapper.toLocalUser(dto);
         return ResponseEntity.ok(userMapper.toDTO(authService.signUp(response, user)));
     }
 

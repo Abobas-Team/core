@@ -23,7 +23,9 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new EmailAlreadyExistsException();
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user instanceof LocalUser localUser) {
+            localUser.setPassword(passwordEncoder.encode(localUser.getPassword()));
+        }
         return userRepository.save(user);
     }
 
