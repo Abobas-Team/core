@@ -6,6 +6,7 @@ public record  GetUserDTO(
     String username,
     String email,
     String role,
+    String provider,
     LocalDateTime createdAt,
     LocalDateTime lastUpdateAt
 ) {
