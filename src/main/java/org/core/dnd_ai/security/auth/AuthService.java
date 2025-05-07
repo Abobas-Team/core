@@ -23,7 +23,7 @@ public class AuthService {
     public User signUp(@NonNull HttpServletResponse response, @NonNull User user) {
         var saved = userService.save(user);
         if (!environment.matchesProfiles("dev")) {
-            var cookies = jwtService.cookieForUser(saved);
+            var cookies = jwtService.cookieForUser(saved.getUsername());
             cookies.forEach(response::addCookie);
         }
         return saved;
@@ -32,13 +32,13 @@ public class AuthService {
     public GetAuthDTO signIn(@NonNull String username, @NonNull String password) {
         var auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         var user = (UserDetails) auth.getPrincipal();
-        return new GetAuthDTO(jwtService.generateAccessToken(user));
+        return new GetAuthDTO(jwtService.generateAccessToken(user.getUsername()));
     }
 
     public void signIn(@NonNull HttpServletResponse response, @NonNull String username, @NonNull String password) {
         var auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         var user = (UserDetails) auth.getPrincipal();
-        var cookies = jwtService.cookieForUser(user);
+        var cookies = jwtService.cookieForUser(user.getUsername());
         cookies.forEach(response::addCookie);
     }
 }
