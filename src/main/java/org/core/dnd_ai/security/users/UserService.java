@@ -16,6 +16,10 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    public Boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     public User save(@NonNull User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new UsernameAlreadyExistsException();
