@@ -16,8 +16,8 @@ public class LocalUser extends User {
     @NotNull
     private String password;
 
-    public LocalUser(@NonNull String username, @NonNull String email, @NonNull Role role, @NonNull String password) {
-        super(username, email, role, AuthProvider.LOCAL);
+    public LocalUser(@NonNull String username, @NonNull String email, @NonNull String password) {
+        super(username, email, AuthProvider.LOCAL);
         this.password = password;
     }
 

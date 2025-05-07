@@ -65,11 +65,10 @@ public class User implements UserDetails {
     @Setter(AccessLevel.NONE)
     private LocalDateTime lastUpdateAt;
 
-    protected User(
-            @NonNull String username, @NonNull String email, @NonNull Role role, @NonNull AuthProvider provider) {
+    protected User(@NonNull String username, @NonNull String email, @NonNull AuthProvider provider) {
         this.username = username;
         this.email = email;
-        this.role = role;
+        this.role = Role.USER;
         this.provider = provider;
     }
 

@@ -14,8 +14,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OAuthUser extends User implements OAuth2User {
-    public OAuthUser(@NonNull String email, @NonNull Role role, @NonNull AuthProvider provider) {
-        super(email, email, role, provider);
+    public OAuthUser(@NonNull String email, @NonNull AuthProvider provider) {
+        super(email, email, provider);
     }
 
     @Override

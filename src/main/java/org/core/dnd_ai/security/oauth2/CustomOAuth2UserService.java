@@ -2,7 +2,6 @@ package org.core.dnd_ai.security.oauth2;
 
 import lombok.RequiredArgsConstructor;
 import org.core.dnd_ai.security.users.OAuthUser;
-import org.core.dnd_ai.security.users.Role;
 import org.core.dnd_ai.security.users.UserService;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -39,7 +38,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         if (!userService.existsByEmail(email)) {
             var provider = this.getAuthProvider(oAuth2UserRequest);
-            userService.save(new OAuthUser(email, Role.USER, provider));
+            userService.save(new OAuthUser(email, provider));
         }
         return oAuth2User;
     }
