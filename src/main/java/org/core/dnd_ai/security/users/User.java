@@ -1,10 +1,12 @@
 package org.core.dnd_ai.security.users;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.*;
 import org.core.dnd_ai.security.oauth2.AuthProvider;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,7 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Entity(name = "base_user")
+@Entity(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula(
         value =
@@ -43,10 +45,12 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    @NonNull
-    @NotNull
+    @NotEmpty
+    @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<Role> roles = new HashSet<>();
 
     @NonNull
     @NotNull
@@ -68,13 +72,16 @@ public class User implements UserDetails {
     protected User(@NonNull String username, @NonNull String email, @NonNull AuthProvider provider) {
         this.username = username;
         this.email = email;
-        this.role = Role.USER;
         this.provider = provider;
+
+        roles.add(Role.USER);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .toList();
     }
 
     @Override
