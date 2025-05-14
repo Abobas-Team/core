@@ -16,9 +16,6 @@ public record PostUserDTO(
     @Email(groups = {Default.class, Post.class})
     String email,
 
-    @NotNull(groups = Post.class)
-    Role role,
-
     @NotBlank(groups = Post.class)
     @Size(min = 8, max = 128, groups = {Default.class, Post.class})
     String password
