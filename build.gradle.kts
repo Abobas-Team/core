@@ -38,6 +38,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
