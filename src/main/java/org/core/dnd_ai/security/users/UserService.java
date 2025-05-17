@@ -1,5 +1,6 @@
 package org.core.dnd_ai.security.users;
 
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.core.dnd_ai.global.exception.EmailAlreadyExistsException;
@@ -18,6 +19,10 @@ public class UserService implements UserDetailsService {
 
     public Boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public User save(@NonNull User user) {
