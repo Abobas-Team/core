@@ -80,6 +80,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         }
-        return tokenBuilder.isEmpty() ? null : tokenBuilder.insert(0, "Bearer ").toString();
+        return tokenBuilder.isEmpty()
+                ? null
+                : tokenBuilder.insert(0, BEARER_PREFIX).toString();
     }
 }
