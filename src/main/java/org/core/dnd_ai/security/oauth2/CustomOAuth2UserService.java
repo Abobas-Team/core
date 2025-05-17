@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserService userService;
+    private final OAuthUserInfoFactory oAuthUserInfoFactory;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -38,7 +39,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         if (!userService.existsByEmail(email)) {
             var provider = this.getAuthProvider(oAuth2UserRequest);
-            userService.save(new OAuthUser(email, provider));
+            var userInfo = oAuthUserInfoFactory.getOAuthUserInfo(provider, oAuth2User.getAttributes());
+            userService.save(new OAuthUser(email, provider, userInfo));
         }
         return oAuth2User;
     }
