@@ -60,7 +60,7 @@ public class JwtService {
 
         if (!environment.matchesProfiles("dev")) {
             cookie.setSecure(true);
-            cookie.setAttribute("SameSite", "None");
+            cookie.setAttribute("SameSite", "Strict"); // Strict to prevent csrf attacks
         }
         return cookie;
     }
