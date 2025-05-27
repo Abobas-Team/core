@@ -1,5 +1,6 @@
 package org.core.dnd_ai.security.users;
 
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,11 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public void deleteByUsername(String username) {
+        userRepository.deleteByUsername(username);
     }
 
     public User save(@NonNull User user) {
