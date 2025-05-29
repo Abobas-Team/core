@@ -1,5 +1,6 @@
 package org.core.dnd_ai.security.users;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.NonNull;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService implements UserDetailsService, PasswordService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,5 +51,23 @@ public class UserService implements UserDetailsService {
                 .findByUsername(username)
                 .or(() -> userRepository.findByEmail(username))
                 .orElseThrow(() -> new UsernameNotFoundException(username));
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordData resetPasswordData, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
+
+        if (user instanceof LocalUser localUser) {
+            var oldPassword = resetPasswordData.oldPassword();
+            var currentPassword =  localUser.getPassword();
+
+            if (!passwordEncoder.matches(oldPassword, currentPassword)) {
+                throw new IllegalArgumentException("Old password is incorrect");
+            }
+            localUser.setPassword(passwordEncoder.encode(resetPasswordData.newPassword()));
+            userRepository.save(localUser);
+        } else {
+            throw new IllegalArgumentException("Cannot reset password for OAuth user");
+        }
     }
 }
