@@ -4,9 +4,8 @@ import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +21,12 @@ public class UserController {
     @DeleteMapping("/me")
     public ResponseEntity<Void> delete(Principal principal) {
         userService.deleteByUsername(principal.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(Principal principal, @RequestBody @Validated ResetPasswordData data) {
+        userService.resetPassword(data, principal.getName());
         return ResponseEntity.noContent().build();
     }
 }
