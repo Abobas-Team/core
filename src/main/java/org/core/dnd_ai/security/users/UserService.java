@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.core.dnd_ai.global.exception.EmailAlreadyExistsException;
+import org.core.dnd_ai.global.exception.PasswordDontMatchException;
 import org.core.dnd_ai.global.exception.UsernameAlreadyExistsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -59,10 +60,10 @@ public class UserService implements UserDetailsService, PasswordService {
 
         if (user instanceof LocalUser localUser) {
             var oldPassword = resetPasswordData.oldPassword();
-            var currentPassword =  localUser.getPassword();
+            var currentPassword = localUser.getPassword();
 
             if (!passwordEncoder.matches(oldPassword, currentPassword)) {
-                throw new IllegalArgumentException("Old password is incorrect");
+                throw new PasswordDontMatchException("Old password is incorrect");
             }
             localUser.setPassword(passwordEncoder.encode(resetPasswordData.newPassword()));
             userRepository.save(localUser);
